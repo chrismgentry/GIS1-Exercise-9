@@ -93,7 +93,7 @@ Now you can close the _Delimited Text_ window. The resulting dataset is added to
 <hr></hr>
 
 <details><summary><big>View directions in <b> [R]{style="color: #6495ED"} </b></span></big></summary>
-BEfore you begin, you will need to open the following _Colab Notebook_ and insert **tocolab** after _github_ in the URL to open in the _Colab Environment_. As you have seen before, R requires various packages to complete certain analyses. In this exercise you will be using **tidyverse, OpenStreetMaps, ggfortify, maptools, and rgeos**. To install and load the packages we will use the following script:
+Before you begin, you will need to open the [Ex9 Colab Notebook](https://github.com/chrismgentry/GIS1-Exercise-9/blob/main/GIS1_EX9.ipynb) and insert **tocolab** after _github_ in the URL to open in the _Colab Environment_. As you have seen before, R requires various packages to complete certain analyses. In this exercise you will be using **tidyverse, OpenStreetMaps, ggfortify, maptools, and rgeos**. To install and load the packages we will use the following script:
 
 ``` {r install packages, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
 packages <- c("adehabitatHR","ggfortify","OpenStreetMap","tidyverse","maptools","rgeos")
