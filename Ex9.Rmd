@@ -1,0 +1,386 @@
+---
+title: "Exercise 9: Interpolated Surfaces - Home Range Analysis <br><small>Geographic Information Systems 1 Lab</small></br>"
+author: "GEOG 3150"
+output:
+  html_notebook:
+    df_print: paged
+    rows.print: 10
+    theme: cosmo
+    highlight: breezedark
+    number_sections: yes
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+  pdf_document: default
+  html_document:
+    toc: yes
+    df_print: paged
+editor_options:
+  chunk_output_type: inline
+  mode: gfm
+---
+
+```{=html}
+<style type="text/css">
+
+h1.title {
+  font-size: 40px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 20px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+</style>
+```
+<hr></hr>
+
+# The Introduction
+
+The Colorado Plateau in Southern Utah is an annual destination for millions of tourists seeking a variety of backpacking, hiking, mountain biking, and caynoneering opportunities. To capitalize on these tourism dollars, the cities of Antimony, Koosharem, and Burrville plan to develop the **"Grass Valley Trail"**. This proposed ~65mi backpacking trail will connect the Otter Creek and Koosharem Resevoirs. They will use existing trails in the nearby Fish Lake National Forest and newly developed paths to create a trail that traverses Forshea Mountain, Langdon Mountain, Monroe Peak, Marysvale Peak, and Monument Peak. This area also has a small population of _Puma concolor_ (mountain lion) that inhabit the nearby Sevier Plateau.
+
+The _Grass Valley Trail Committee_ has contracted with you to determine the likely impact of increased tourism on the mountain lion habitat and potential risk to visitors. So they have asked you to analyze the home range of two individual mountain lions that were fitted with GPS collars to track their movements. This information will be used to assess the viability of their proposal.
+
+In this exercise you will:
+
+-   Use a comma delimited file to create a new dataset
+-   Create a minimum convex polygon for home range based on point data
+-   Create a kernel density estimate of home range based on point data
+-   Examine the difference in area between the two home range estimates
+-   Determine the impact of the **Grass Valley Trail** on _Puma concolor_ on the Sevier Plateau
+
+Software specific directions can be found for each step below. Please submit the answer to the questions and your final map by the due date.
+
+## Step One: The Data
+
+To begin this work you have obtained GPS collar data for local mountain lions from a wildlife biologist at the Utah Division of Wildlife Resources. The dataset contains relocation information (i.e. where the cougars have been located through collar transmission) for each tracked cougar. However, this data was provided as a CSV file. So you will need to import that data to create a new dataset.
+
+<details>
+<summary><big>View Directions in <b> [ArcGIS Pro]{style="color:#ff4500"} </b></big></summary>
+
+First you will need to download the following datasets from GitHub by using right-click _Save as..._ or Crtl+click _Save as.._ on each link below: 
+
+- [Cougar Relocations](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/cougars.csv)
+- [Hiking Trail Nodes](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/hiking_trail.csv)
+
+Wrap it up B!
+
+</details>
+
+<hr></hr>
+
+<details>
+<summary><big>View directions in <b> [QGIS]{style="color: #006400"} </b></big></summary>
+First you will need to download the following datasets from GitHub by using right-click _Save as..._ or Crtl+click _Save as.._ on each link below: 
+
+- [Cougar Relocations](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/cougars.csv)
+- [Hiking Trail Nodes](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/hiking_trail.csv)<br>
+
+In order to calculate home range you need to have your data in a projected coordinate system. So you will need to change your project CRS to ```EPSG: 32612 WGS 84/UTM zone 12N```. Now add the _comma delimited_ (or csv) file to  your project by clicking on the <img src= "Images/csv_image.png" alt="Add Delimited Text Layer" width="20" height="20"> button in the left vertical menu or selecting it on the menu bar through _Layer > Add Layer > Add Delimited Text Layer_. In the resulting window, remember to click the button <img src= "Images/file_path.png" alt="Browse File Path" width="20" height="20"> to browse to the location of the data. The _layer name_ will automatically populate or you can change this by typing a new name in the _Layer name_ field. Next, select **CSV (comma separated values)** in the _File Format_ options. You should use the project CRS for the _Geometry Definition_ and make sure the _X Field_ and _Y Field_ are set to the <u>proper UTM columns</u>. Finally at the bottom of the window click **Add**. 
+
+<p align="center"><img src= "Images/delimited_text.png" alt="Data Source Manager|Delimited Text" width="440" height="520"></p>
+
+Now you can close the _Delimited Text_ window. The resulting dataset is added to your layers as a temporary file. It can still be used for analysis and display purposes, but if you close the project the layer may be removed. To make it a permanent dataset, select the temporary dataset in the layers area, and on the menu bar choose _Layers > Save As…_ Alternatively you can right-click or Crtl+click on a Mac and choose _Export > Save features as..._
+
+<p align="center"><img src= "Images/qgis_dataset.png" alt="View of new dataset" width="640" height="506"></p>
+</details>
+
+<hr></hr>
+
+<details><summary><big>View directions in <b> [R]{style="color: #6495ED"} </b></span></big></summary>
+BEfore you begin, you will need to open the following _Colab Notebook_ and insert **tocolab** after _github_ in the URL to open in the _Colab Environment_. As you have seen before, R requires various packages to complete certain analyses. In this exercise you will be using **tidyverse, OpenStreetMaps, ggfortify, maptools, and rgeos**. To install and load the packages we will use the following script:
+
+``` {r install packages, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+packages <- c("adehabitatHR","ggfortify","OpenStreetMap","tidyverse","maptools","rgeos")
+sapply(packages, install.packages, character.only=TRUE)
+sapply(packages, require, character.only=TRUE)
+```
+
+Now that you have the packages required for the exercise you can read in the _csv_ file and view the resulting dataset. Using the ```read.csv``` command and a URL to the data on GitHub you will import and examine the data.
+
+```{r load csv, echo=TRUE, warning=FALSE, message=FALSE, paged.print=TRUE}
+cougars <- read.csv("https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/cougars.csv")
+head(cougars)
+```
+
+You can also plot the simple XY data to examine the spread of the dataset.
+```{r plot cougar xy data, fig.height=6, fig.width=4, echo=TRUE, warning=FALSE, message=FALSE}
+ggplot(cougars) + geom_point(aes(utm_east, utm_north)) + 
+                  labs(x="Easting", y="Northing") +
+                  guides(color=guide_legend("Identification")) +
+                  theme_bw() + theme(legend.position = "top") +
+                  theme(axis.text.y = element_text(angle=90, hjust=0.5)) +
+                  theme(panel.grid.major = element_blank(),
+                        panel.grid.minor = element_blank()) +
+                  xlim(405000,425000)
+```
+
+</details>
+
+### Question No. 1
+<blockquote>
+How many individuals are being tracked in this dataset?
+</blockquote>
+
+## Step Two: The Analyses
+
+Now that you have the data you can calculate the two home range estimates: _minimum convex polygon_ and _kernel density estimation_. The minimum convex polygon (**MCP**) draws the smallest polygon encompassing all the points, while the kernel density estimation (**KDE**) calculates a magnitude-per-unit area from the point features using a function to fit a smoothly tapered surface. For this exercise you will run both analyses and compare the results.
+
+<details>
+<summary><big>View Directions in <b> [ArcGIS Pro]{style="color:#ff4500"} </b></big></summary>
+
+text
+
+<blockquote>Insert images and text here</blockquote>
+
+Wrap it up B!
+
+</details>
+
+<hr></hr>
+
+<details>
+<summary><big>View Directions in <b> [QGIS]{style="color:#006400"} </b></big></summary>
+
+In the previous step you loaded the relocations and added the layer to your view. Now you will use several tools from the _Processing Toolbox_ &nbsp;<img src= "Images/qgis_toolbox.png" alt="Processing Toolbox" width="20" height="20"> to complete the analyses including:
+
+- Minimum bounding geometry
+- Add geometry attributes
+- Heat map (Kernel Density Estimation)
+- Raster calculator
+- Polygonize (raster to vector)
+
+To create the _minimum convex polygon_ you will use the ```Minimum bounding geometry``` tool that can be found in the _Processing Toolbox_ under **Vector geometry**. Alternatively you can search for it in the toolbox search bar. You will use the **cougar** dataset for the _Input layer_, and **Convex hull** for the _Geometry type_. All other options you can leave as the default. Remember this will create a temporary layer which you can choose to make permanent or rename in your layers for clarity. 
+
+<p align="center"><img src= "Images/qgis_mbg.png" alt="Minimum bounding geometry options" width="482" height="387"></p>
+
+You should now have a _Bounding geometry_ polygon in your layers you can style as necessary to display the information. By viewing the _attribute table_ you can see the area (in square meters) of the polygon. 
+
+Creating the **KDE** estimate will take a few more steps before you can obtain the statistical information for comparison. Because the _kernel density estimation_ creates a raster dataset, you will classify the data using the ```raster calculator``` and convert the classified values to a vector with ```polygonize``` before examining the statistics. 
+
+To begin this analysis you need to open the ```Heatmap (Kernel Density Estimation)``` tool from **Interpolation** in the _Processing Toolbox_. In the _input layer_ you will use the **cougar** dataset, set a _Radius_ of 2000, a _pixel size_ of 100, and set the _Kernel shape_ to _Epanechnikov_. 
+
+<p align="center"><img src= "Images/qgis_heatmap.png" alt="Heatmap (KDE) options" width="480" height="386"></p>
+
+Now click **Run**. This will create a **KDE** and add it to your layers. You can style the _heatmap_ using _symbology_ under the _properties_ menu for the data. IN order to get more information out of this analysis you need to **reclassify** the raster into the following categories:
+
+- Level 1 = 0 to 60, low levels of relocations
+- Level 2 = 61 to 120, moderate levels of relocations
+- Level 3 = 121 to 180, high levels of relocations
+- Level 4 = Greater than 180, very high level of relocations 
+
+To do this you will use the ```Raster Calculator``` located under _Raster_ on the _Menu Bar_ or under _Raster analysis_ in the _Processing Toolbox_. In the _Layers_ section you should see the available raster layers in your current project. In the _Expression_ box you will paste the following SQL expression:
+
+```
+("Heatmap@1" <= 60) * 1 + 
+(("Heatmap@1" > 60)  AND  ("Heatmap@1" <= 120)) * 2 + 
+(("Heatmap@1" > 120)  AND  ("Heatmap@1" <= 180)) * 3 + 
+("Heatmap@1" > 180) * 4
+```
+
+Where **"Heatmap\@1"** is the name of the _KDE_ output from the previous step. This will convert all of the values to a range of 1-4 indicating the level of relocations. In the section for _Reference layer(s) (used for automated extent, cellsize, and CRS)[optional]_ you should click the _browse file path_ button <img src= "Images/file_path.png" alt="Browse File Path" width="20" height="20"> to add the **Heatmap** (or the name of your _KDE_ file). Make the _Cell size_ to 100, using the dropdown menu next to the _Output extent [optional]_ select **Calculate from Layer** and choose your _Heatmap_. For the _Output CRS [optional]_ select the project CRS and then click **Run**.
+
+<p align="center"><img src= "Images/qgis_rc.png" alt="Raster calculator options" width="430" height="502"></p>
+
+This will add the reclassified heatmap to you layers. Now you can use ```Polygonize (raster to vector)``` found under _Raster > Conversion_ on the menur bar or _GDAL > Raster conversion_ in the _Processing Toolbox_. In the _Polygonize (Raster to Vector)_ window choose your reclassified KDE created in the previous step as the _Input layer_ and click **Run**. This will add another layer (usually called "Vectorized" if set as a temporary file) that turned the raster data to vector polygons. Finally, we need to use the **Add geometry attributes** found under _Vector > Geometry Tools_ on the menu bar or _Vector geometry_ in the _Processing Toolbox_. This will add columns for **Area** and **Perimeter** to the attribute table for the vectorized dataset. You will need to add the _vectorized_ layer as the **Input layer**, _Layer CRS_ for the **Calculate using** field and click **Run**.
+
+<p align="center"><img src= "Images/qgis_geometries.png" alt="Add geometry attributes" width="426" height="222"></p>
+
+Finally, if you click the **Show Statistical Summary** button <img src= "Images/qgis_statistics.png" alt="Show statistical summary" width="20" height="20"> on the primary horizontal menu, a new _Statistics_ panel will be added to your layout. By selecting the _Added geometry info_ layer (or the name of the file from the previous step) and choosing _area_ you can see a summary of the statistical information. The total area in the _KDE Estimation_ will be found in the **Sum** statistic.
+
+</details>
+
+<hr></hr>
+
+<details>
+<summary><big>View Directions in <b> [R]{style="color:#6495ED"} </b></big></summary>
+
+For this exercise you will use the ```adehabitat``` package to calculate both the _MCP_ and _KDE_ polygons. Because this package uses specialized functions you need to convert your XY data to a class of data called _SpatialPoints_. Once the spatial data is created you can run both the MCP and KDE analyses for the dataset you obtained above.
+
+Because the analyses need to be calculated using metric values, you will use the **utm-east** and **utm-north** columns in the dataset to create a set of coordinates with a _SpatialPoints_ class that will be used in the calculation of the polygons.
+
+```{r create coordinates, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+x <- cougars$utm_east
+y <- cougars$utm_north
+xy <- as.data.frame(cbind(x,y))
+coordinates(xy) <- ~x+y
+```
+
+With this new _XY_ dataset you can now create the **MCP** and **KDE** estimates for the cougar relocations. You will start with the **MCP** polygon. Using the ```mcp``` function in the ```adehabitat``` package, you will create the estimated _MCP home range_. Then you will need to convert the resulting _SpatialPolygonsDataFrame_ to a format that can be plotted using ```ggpolt2```. Currently you will use the ```fortify``` function, however as functions are deprecated over time, ```tidy``` as part of the ```broom``` package can also be used for this process.
+
+```{r create mcp, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+mcp.out <- mcp(xy, percent=100, unout="ha")
+mcp.poly <- fortify(mcp.out)
+```
+
+In the script above you can see the area of the _minimum convex polygon_ is being measured in hectares. To determine the area of the _MCP_ you can type ```mcp.out$area``` to print the measurement.
+
+While the _MCP_ creates a single bounding polygon, _kernel density estimates_ often are used to create multiple polygons that can be used similar to a _hotpsot analysis_. This requires a few additional steps as compared to the _MCP_ example above. Before converting the _SpatialPolygonsDataframe_ you will need to create multiple estimates from the dataset by varying the percentage level for the home range estimation. Essentially, higher percentage levels will encompass areas with very few relocations and lower percentage levels will encompass areas with a dense number of relocations. For this analysis you will create estimates based on:
+
+- 100% level = includes low to very high levels of relocations
+- 75% level = includes moderate to very high levels of relocations
+- 50% level = includes high to very high levels of relocations
+- 25% level = includes only very high level of relocations
+
+Once these estimates are created you will need to ```fortify``` each of the polygons so they can be displayed with ```ggplot2```.
+
+```{r create kdes, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+kde <- kernelUD(xy, h=2000, kern="epa", grid=100)
+kde100 <- getverticeshr(kde, 100, unout="ha")
+kde75 <- getverticeshr(kde, 75, unout="ha")
+kde50 <- getverticeshr(kde, 50, unout="ha")
+kde25 <- getverticeshr(kde, 25, unout="ha")
+kde.poly100 <- fortify(kde100)
+kde.poly75 <- fortify(kde75)
+kde.poly50 <- fortify(kde50)
+kde.poly25 <- fortify(kde25)
+```
+
+In these KDE scripts you can print the area (hectares) of any polygon by typing ```kde##$area```, where ## is the _kde_ value from the scripts above. Viewing the area of **kde100** will allow you to view the entire area estimated by the analysis since it includes all levels of relocation.
+</details>
+
+### Question No. 2
+<blockquote>
+What is the area of the Minimum Convex Polygon?<br>
+What is the area of the Kernel Density Estimation?
+</blockquote>
+
+## Step Three: The Visualization
+
+In order to view our data _in situ_ we need to add a basemap to our view. While we could add various base layers such as topo or terrain maps, in this case we are going to use satellite imagery.
+
+<details><summary><big>View directions in <b> [ArcGIS Pro]{style="color:#ff4500"} </b></span></big></summary>
+A list of <b>directions</b>... 
+
+<blockquote>insert images and text here</blockquote> 
+
+wrap it up.
+
+</details>
+
+<hr></hr>
+
+<details><summary><big>View directions in <b> [QGIS]{style="color:#006400"} </b></span></big></summary>
+In a previous exercise you added XYZ tiles to your QGIS Browser. Remember to add **ESRI Satellite Imagery** to your broswer you need to Right-Click (CRTL+click on Mac) on _XYZ Tiles_ and click **"New Connection"** and add the following URL:
+
+```
+https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
+```
+
+You can now click and drag ESRI Satellite into the layer to view the satellite imagery. Remember to arrange your layers so that you can visualize all of the data you are interesting in examining.
+
+<p align="center"><img src= "Images/qgis_output.png" alt="QGIS Output" width="680" height="350"></p>
+
+</details>
+
+<hr></hr>
+
+<details><summary><big>View directions in <b> [R]{style="color:#6495ED"} </b></span></big></summary>
+To obtain imagery for this project you are again going to use ```OpenStreetMap``` to connect to **Bing Aerial Imagery**. Although you used the UTM values for the analysis, _OpenStreetMap_ only uses geographic coordinates for their imagery. So you will obtain the image first and then reproject it to the appropriate UTM zone.
+
+In the following script you will be using the minimum and maximum values from _cougars_ longitude and latitude columns to set the bounding coordinates. To avoid any point being located on the edge of the image we are going to add a 0.05 degree buffer to each value. 
+
+```{r OSM imagery, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+imagery <- openmap(c(max(cougars$lat+0.05),min(cougars$long-0.05)),
+                   c(min(cougars$lat-0.07),max(cougars$long+0.05)),
+                   type = "bing")
+```
+
+Now you will convert the imagery projection from geographic coordinates to UTM Zone 12.
+
+```{r Reproject OSM, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+imagery_utm <- openproj(imagery, 
+                        projection = "+proj=utm +zone=12 +datum=WGS84 +units=m +no_defs")
+```
+                        
+With this imagery now you can plot the _MCP_ and _KDE_ polygons as well as the data points if necessary.
+
+```{r map, echo=TRUE, fig.height=5, fig.width=3, message=FALSE, warning=FALSE}
+autoplot.OpenStreetMap(imagery_utm, expand = TRUE) + 
+theme_bw() + theme(legend.position = "bottom") +
+geom_polygon(data = kde.poly100, aes(x=long, y=lat, group=group), color = NA, fill = 'lightyellow') +
+geom_polygon(data = kde.poly75, aes(x=long, y=lat, group=group), color = NA, fill = 'gold') +
+geom_polygon(data = kde.poly50, aes(x=long, y=lat, group=group), color = NA, fill = 'darkorange') +
+geom_polygon(data = kde.poly25, aes(x=long, y=lat, group=group), color = NA, fill = 'darkred') +
+geom_polygon(data = mcp.poly, aes(x=long, y=lat), color = "red", fill = NA, alpha = 0.8, size = 1) +
+geom_point(data = cougars, aes(x=utm_east, y=utm_north), alpha = 0.1) +
+labs(x="Easting", y="Northing") + guides(color=guide_legend("Identifier")) +
+theme(legend.position="bottom") +
+theme(axis.text.y = element_text(angle=90, hjust=0.5))
+```
+</details>
+
+### Questions No. 3
+<blockquote>
+What steps would you take to differentiate between the individual cougars in this visualization?
+</blockquote>
+
+## Step Four: The Proposal
+
+Now that you have all of the data necessary to determine the feasibility of the **"Grassy Valley Trail"**, you need to add the proposed trail to assess the impact it may have on the cougar population.
+
+<details><summary><big>View directions in <b> [ArcGIS Pro]{style="color:#ff4500"} </b></span></big></summary>
+similar to _Step One_, you will begin by adding the 
+
+</details>
+
+<hr></hr>
+
+<details><summary><big>View directions in <b> [QGIS]{style="color:#006400"} </b></span></big></summary>
+In the first step you should have downloaded the **hiking_trails** dataset from _GitHub_. If you skipped that step you will need to download the [dataset](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/hiking_trail.csv) now. Similarly to step one, the data is formatted as a _\.csv_ file so you will need to use _Add Delimited Text Layer_ <img src= "Images/csv_image.png" alt="Add Delimited Text Layer" width="20" height="20"> to import the dataset. Once added to your layers you can use the **points to path** tool located in _Vector creation_ in the _Processing Toolbox_. In the _Input point layer_ parameter choose the **hiking_trail** dataset and in _Order field_ choose **node**. You can leave the remainder of the options as default and click **Run**.
+
+<p align="center"><img src= "Images/qgis_p2p.png" alt="QGIS Output" width="482" height="387"></p>
+
+Now you should have a line representing the proposed **"Grass Valley Trail"** that you can style appropriately to help examine all of the data.
+
+</details>
+
+<hr></hr>
+
+<details><summary><big>View directions in <b> [R]{style="color:#6495ED"} </b></span></big></summary>
+Similarly to step one, you are going to use ```read.csv``` and a URL from GitHub to import the data for the proposed **"Grass Valley Trail"**.
+
+```{r hiking trail, echo=TRUE, results="hide", message=FALSE, warning=FALSE}
+trail <- read.csv('https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/hiking_trail.csv')
+```
+
+In the previous step you created a visualization that allowed you to overlay the _MCP_ and _KDE_ polygons on aerial imagery as well as the relocations. To convert the **"Grass Valley Trail"** import from above, which is point data, to a line, you need to add the following script to visualization from above:
+
+```
+geom_path(data = trail, aes(x = x ,y = y), size = 1, linetype = 1)
+```
+Remember, ```ggplot2``` draws each layer over the previous. So if you want the proposed trail to be the top layer, it should be the last one drawn.
+
+```{r map with trail, eval=FALSE, fig.height=5, fig.width=3, message=FALSE, warning=FALSE, include=FALSE}
+autoplot.OpenStreetMap(imagery_utm, expand = TRUE) + 
+theme_bw() + theme(legend.position = "bottom") +
+geom_polygon(data = kde.poly100, aes(x=long, y=lat, group=group), color = NA, fill = 'lightyellow') +
+geom_polygon(data = kde.poly75, aes(x=long, y=lat, group=group), color = NA, fill = 'gold') +
+geom_polygon(data = kde.poly50, aes(x=long, y=lat, group=group), color = NA, fill = 'darkorange') +
+geom_polygon(data = kde.poly25, aes(x=long, y=lat, group=group), color = NA, fill = 'darkred') +
+geom_polygon(data = mcp.poly, aes(x=long, y=lat), color = "red", fill = NA, alpha = 0.8, size = 1) +
+geom_path(data = trail, aes(x = x ,y = y), size = 1, linetype = 1) +
+labs(x="Easting", y="Northing") + guides(color=guide_legend("Identifier")) +
+theme(legend.position="bottom") +
+theme(axis.text.y = element_text(angle=90, hjust=0.5))
+```
+</details>
+
+### Question No. 4
+<blockquote>
+Does the trail cross any areas calculated as _high_ or _very high_ use based on the _KDE_ analysis?
+</blockquote>
+
+# The Decision
+Recall that _Grass Valley Trail Committee_ has asked you to assess the impact of the proposed hiking trail on the mountain lion habitat and potential risk to visitors. Based on the analyses above, complete a lab write-up that addresses the following questions:
+
+- Explain to the committee the process you used to determine the risks of the proposed trail.
+- Describe the difference between the two types of home range analyses. How would this potentially impact the decisions made by the committee? 
+- What portion of the proposed trail has the highest likelihood to traverse areas of the _Sevier Plateau_ that are frequently (high to very high categories) used by the tracked cougars?
+
+Finally, provide a recommendation for the committee on how the proposed trail can be completed with as little interaction as possible with the cougar habitat. Include a visualization (whether digital or analog) that helps provide additional details for your recommendation.
