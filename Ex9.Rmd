@@ -1,5 +1,5 @@
 ---
-title: "Exercise 9: Interpolated Surfaces - Home Range Analysis <br><small>Geographic Information Systems 1 Lab</small></br>"
+title: "Exercise 9: Interpolated Surfaces and<br> Home Range Analysis <br><small>Geographic Information Systems 1 Lab</small></br>"
 author: "GEOG 3150"
 output:
   html_notebook:
@@ -315,7 +315,7 @@ theme(axis.text.y = element_text(angle=90, hjust=0.5))
 ```
 </details>
 
-### Questions No. 3
+### Question No. 3
 <blockquote>
 What steps would you take to differentiate between the individual cougars in this visualization?
 </blockquote>
