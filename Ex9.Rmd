@@ -65,8 +65,8 @@ To begin this work you have obtained GPS collar data for local mountain lions fr
 
 First you will need to download the following datasets from GitHub by using right-click _Save as..._ or Crtl+click _Save as.._ on each link below: 
 
-- [Cougar Relocations](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/cougars.csv)
-- [Hiking Trail Nodes](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/hiking_trail.csv)
+- [Cougar Relocations](https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/cougars.csv)
+- [Hiking Trail Nodes](https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/hiking_trail.csv)
 
 Wrap it up B!
 
@@ -78,8 +78,8 @@ Wrap it up B!
 <summary><big>View directions in <b> [QGIS]{style="color: #006400"} </b></big></summary>
 First you will need to download the following datasets from GitHub by using right-click _Save as..._ or Crtl+click _Save as.._ on each link below: 
 
-- [Cougar Relocations](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/cougars.csv)
-- [Hiking Trail Nodes](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/hiking_trail.csv)<br>
+- [Cougar Relocations](https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/cougars.csv)
+- [Hiking Trail Nodes](https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/hiking_trail.csv)<br>
 
 In order to calculate home range you need to have your data in a projected coordinate system. So you will need to change your project CRS to ```EPSG: 32612 WGS 84/UTM zone 12N```. Now add the _comma delimited_ (or csv) file to  your project by clicking on the <img src= "Images/csv_image.png" alt="Add Delimited Text Layer" width="20" height="20"> button in the left vertical menu or selecting it on the menu bar through _Layer > Add Layer > Add Delimited Text Layer_. In the resulting window, remember to click the button <img src= "Images/file_path.png" alt="Browse File Path" width="20" height="20"> to browse to the location of the data. The _layer name_ will automatically populate or you can change this by typing a new name in the _Layer name_ field. Next, select **CSV (comma separated values)** in the _File Format_ options. You should use the project CRS for the _Geometry Definition_ and make sure the _X Field_ and _Y Field_ are set to the <u>proper UTM columns</u>. Finally at the bottom of the window click **Add**. 
 
@@ -104,7 +104,7 @@ sapply(packages, require, character.only=TRUE)
 Now that you have the packages required for the exercise you can read in the _csv_ file and view the resulting dataset. Using the ```read.csv``` command and a URL to the data on GitHub you will import and examine the data.
 
 ```{r load csv, echo=TRUE, warning=FALSE, message=FALSE, paged.print=TRUE}
-cougars <- read.csv("https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/cougars.csv")
+cougars <- read.csv("https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/cougars.csv")
 head(cougars)
 ```
 
@@ -332,7 +332,7 @@ similar to _Step One_, you will begin by adding the
 <hr></hr>
 
 <details><summary><big>View directions in <b> [QGIS]{style="color:#006400"} </b></span></big></summary>
-In the first step you should have downloaded the **hiking_trails** dataset from _GitHub_. If you skipped that step you will need to download the [dataset](https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/hiking_trail.csv) now. Similarly to step one, the data is formatted as a _\.csv_ file so you will need to use _Add Delimited Text Layer_ <img src= "Images/csv_image.png" alt="Add Delimited Text Layer" width="20" height="20"> to import the dataset. Once added to your layers you can use the **points to path** tool located in _Vector creation_ in the _Processing Toolbox_. In the _Input point layer_ parameter choose the **hiking_trail** dataset and in _Order field_ choose **node**. You can leave the remainder of the options as default and click **Run**.
+In the first step you should have downloaded the **hiking_trails** dataset from _GitHub_. If you skipped that step you will need to download the [dataset](https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/hiking_trail.csv) now. Similarly to step one, the data is formatted as a _\.csv_ file so you will need to use _Add Delimited Text Layer_ <img src= "Images/csv_image.png" alt="Add Delimited Text Layer" width="20" height="20"> to import the dataset. Once added to your layers you can use the **points to path** tool located in _Vector creation_ in the _Processing Toolbox_. In the _Input point layer_ parameter choose the **hiking_trail** dataset and in _Order field_ choose **node**. You can leave the remainder of the options as default and click **Run**.
 
 <p align="center"><img src= "Images/qgis_p2p.png" alt="QGIS Output" width="482" height="387"></p>
 
@@ -346,7 +346,7 @@ Now you should have a line representing the proposed **"Grass Valley Trail"** th
 Similarly to step one, you are going to use ```read.csv``` and a URL from GitHub to import the data for the proposed **"Grass Valley Trail"**.
 
 ```{r hiking trail, echo=TRUE, results="hide", message=FALSE, warning=FALSE}
-trail <- read.csv('https://raw.githubusercontent.com/chrismgentry/GIS1ex9/main/hiking_trail.csv')
+trail <- read.csv('https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/hiking_trail.csv')
 ```
 
 In the previous step you created a visualization that allowed you to overlay the _MCP_ and _KDE_ polygons on aerial imagery as well as the relocations. To convert the **"Grass Valley Trail"** import from above, which is point data, to a line, you need to add the following script to visualization from above:
