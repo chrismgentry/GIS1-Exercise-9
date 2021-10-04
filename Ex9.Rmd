@@ -30,12 +30,34 @@ h1.title {
   color: DarkBlue;
   text-align: center;
 }
+
 h4.author { /* Header 4 - and the author and data headers use this too  */
   font-size: 20px;
   font-family: "Times New Roman", Times, serif;
   color: DarkBlue;
   text-align: center;
 }
+
+body {
+  font-family: Helvetica;
+  font-size: 12pt;
+}
+
+.zoom {
+  transform-origin: 40% 50% 0;
+  transition: transform .2s;
+  margin: 0 auto;
+}
+.zoom img{
+	width:auto;
+	height:auto;	
+}
+.zoom:hover {
+  transform: scale(2);
+}
+
+th, td {padding: 5px;}
+
 </style>
 ```
 <hr></hr>
