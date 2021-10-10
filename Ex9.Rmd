@@ -85,12 +85,25 @@ To begin this work you have obtained GPS collar data for local mountain lions fr
 <details>
 <summary><big>View Directions in <b> [ArcGIS Pro]{style="color:#ff4500"} </b></big></summary>
 
-First you will need to download the following datasets from GitHub by using right-click _Save as..._ or Crtl+click _Save as.._ on each link below: 
+First you will need to download the following datasets from GitHub by clicking on the link and  using right-click _Save as..._ on the page to save the \*.csv file to your project folder: 
 
-- [Cougar Relocations](https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/cougars.csv)
-- [Hiking Trail Nodes](https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/hiking_trail.csv)
+- <a href="https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/cougars.csv" target="_blank">Cougar Relocations</a>
+- <a href="https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/hiking_trail.csv" target="_blank">Hiking Trail Nodes</a>
 
-Wrap it up B!
+In order to calculate home range you need to have your data in a projected coordinate system. Since the data is in UTM format, you will need to change your project coordinate system to **WGS 1984 UTM Zone 12N** by right-clicking on your _Map > Properties_ then going to the _Coordinate Systems_ and changing the coordinate system to Projected Coordinate System > UTM > WGS 1984 > Northern Hemisphere > WGS 1984 UTM Zone 12N. The move over to the General options and change the _Display Units_ to UTM. This will ensure that your map and data are all in the appropriate coordinate system.
+
+<p align="center"><div class="zoom"><img src= "Images/arcgis-map-properties.png" alt="Changing Coordinate System" style="width:100%"></div></p>
+
+Similar to [previous exercises](https://chrismgentry.github.io/GIS1-Exercise-6/#11_Step_One:_The_Data) you can now import the dataset with the cougar relocations by going to _Map Tab > Add Data -> XY Point Data_. Make sure you set the coordinate system to the one list above or _current map_ which you previously set.
+
+<p align="center"><div class="zoom"><img src= "Images/arcgis-xy-data.png" alt="Adding Cougar Dataset" style="width:100%"></div></p>
+
+You should now have the cougar dataset added to your Table of Contents. If you right-click on the dataset and click "Zoom to Layer" it will zoom into the full extent of that dataset. Because of the type of analysis in the next step you can keep the default basemap.
+
+**Question No. 1**
+<blockquote>
+How many individuals are being tracked in this dataset?
+</blockquote>
 
 </details>
 
@@ -98,18 +111,26 @@ Wrap it up B!
 
 <details>
 <summary><big>View directions in <b> [QGIS]{style="color: #006400"} </b></big></summary>
-First you will need to download the following datasets from GitHub by using right-click _Save as..._ or Crtl+click _Save as.._ on each link below: 
 
-- [Cougar Relocations](https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/cougars.csv)
-- [Hiking Trail Nodes](https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/hiking_trail.csv)<br>
+First you will need to download the following datasets from GitHub by clicking on the link and using right-click _Save as..._ or Crtl+click _Save as.._ on the page to save the \*.csv file to your project folder: 
+
+- <a href="https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/cougars.csv" target="_blank">Cougar Relocations</a>
+- <a href="https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/hiking_trail.csv" target="_blank">Hiking Trail Nodes</a>
 
 In order to calculate home range you need to have your data in a projected coordinate system. So you will need to change your project CRS to ```EPSG: 32612 WGS 84/UTM zone 12N```. Now add the _comma delimited_ (or csv) file to  your project by clicking on the <img src= "Images/csv_image.png" alt="Add Delimited Text Layer" width="20" height="20"> button in the left vertical menu or selecting it on the menu bar through _Layer > Add Layer > Add Delimited Text Layer_. In the resulting window, remember to click the button <img src= "Images/file_path.png" alt="Browse File Path" width="20" height="20"> to browse to the location of the data. The _layer name_ will automatically populate or you can change this by typing a new name in the _Layer name_ field. Next, select **CSV (comma separated values)** in the _File Format_ options. You should use the project CRS for the _Geometry Definition_ and make sure the _X Field_ and _Y Field_ are set to the <u>proper UTM columns</u>. Finally at the bottom of the window click **Add**. 
 
 <p align="center"><img src= "Images/delimited_text.png" alt="Data Source Manager|Delimited Text" width="440" height="520"></p>
 
+Alternatively, you could follow the directions from [Exercise 6, Step 1](https://chrismgentry.github.io/GIS1-Exercise-6/#11_Step_One:_The_Data) using the MMQGIS plugin to load the file directly from the URL. Just be sure to set the latitude and longitude value fields for the UTM information.
+
 Now you can close the _Delimited Text_ window. The resulting dataset is added to your layers as a temporary file. It can still be used for analysis and display purposes, but if you close the project the layer may be removed. To make it a permanent dataset, select the temporary dataset in the layers area, and on the menu bar choose _Layers > Save As…_ Alternatively you can right-click or Crtl+click on a Mac and choose _Export > Save features as..._
 
 <p align="center"><img src= "Images/qgis_dataset.png" alt="View of new dataset" width="640" height="506"></p>
+
+**Question No. 1**
+<blockquote>
+How many individuals are being tracked in this dataset?
+</blockquote>
 </details>
 
 <hr></hr>
@@ -142,12 +163,12 @@ ggplot(cougars) + geom_point(aes(utm_east, utm_north)) +
                   xlim(405000,425000)
 ```
 
-</details>
-
-### Question No. 1
+**Question No. 1**
 <blockquote>
 How many individuals are being tracked in this dataset?
 </blockquote>
+
+</details>
 
 ## Step Two: The Analyses
 
@@ -156,11 +177,58 @@ Now that you have the data you can calculate the two home range estimates: _mini
 <details>
 <summary><big>View Directions in <b> [ArcGIS Pro]{style="color:#ff4500"} </b></big></summary>
 
-text
+In the previous step you loaded the relocations and added the layer to your view. Now you will use several tools from the _Toolbox_ <img src= "Images/arcgis-toolbox-button.jpg" alt="Toolbox" width="20" height="20"> to complete the analyses including:
 
-<blockquote>Insert images and text here</blockquote>
+- Minimum Bounding Geometry (minimum convex polygon)
+- Kernel Density Estimation
+- Calculate Geometry
+- Reclassify
+- Raster to Polygon
 
-Wrap it up B!
+To create the minimum convex polygon you will use the `Minimum Bounding Geometry` tool that can be found by using the name as a search term in _Toolbox_ from the Analysis Tab. You will use the **cougar** dataset for the _Input Features_, navigate to your project folder and give the \*.shp file a name in the _Output Feature Class_ options, and select **convex hull** for the _Geometry Type_. For _Group Option_ select All. Leave the box for geometry characteristics unchecked.
+
+<p align="center"><div class="zoom"><img src= "Images/arcgis-mcp-dialog.png" alt="Creating the Minimum Bounding Geometry" style="width:100%"></div></p>
+
+You should now have a bounding geometry polygon in your layers you can style as necessary to display the information. Notice how the polygon is drawn and encompasses the data points. To create the kernel density estimation search for it in the toolbox or alternatively it can be found in the quickly link for tools on the Analysis Tab. Use the following setting for the Kernel Density analysis:
+
+- Input point of polyline features = cougars dataset
+- Population field = NONE
+- Output raster = navigate to your project folder and give the file a name followed by .tif
+- Output cell size = 100
+- Search radius = 2000
+- Area units = Square meters
+- Output cell values = Densities
+- Method = Planar
+- Input barrier featues = Leave this blank
+
+<p align="center"><div class="zoom"><img src= "Images/arcgis-kde-dialog.png" alt="Creating the Kernel Density Estimation" style="width:100%"></div></p>
+
+Before moving on with any additional analysis, you will reclassify the KDE output to four (4) classes. To do this search for **Reclassify** in the geoprocessing tools. In parentheses behind the tools name you will see the name of the package it is being selected from. You want to choose the `Reclassify` tool from the _Spatial Analyst Tools_ package. In the Reclassify pane select the kernel density file you just created as the _Input Raster_ and click **Classify**. In the Window select 4 classes and click OK. Finally, in the _Output raster_ option navigate to your project folder and be sure to save the file as a .tif then click Run.
+
+<p align="center"><div class="zoom"><img src= "Images/arcgis-reclassify.png" alt="Classifying the KDE to 4 classes" style="width:100%"></div></p>
+
+Next, in order to calculate the area of the new classified KDE you will need to conver it to a polygon feature class. In _Tools_ you can search for "Raster to Polygon" and add the new reclassifed KDE as the _Input Raster_, select "Value" for the _Field_ parameter, and use the browse button to navigate to your project folder and give the new file a .shp file name in the _Output Polygon Features_ parameter. Be sure to click the _Simply polygons_ and _Create multipart features_ boxes and click Run.
+
+<p align="center"><div class="zoom"><img src= "Images/arcgis-raster-to-polygon.png" alt="Creating Polygons from Raster" style="width:100%"></div></p>
+
+This will create a series of overlapping polygons representing each of the four classes.  
+
+- Class 1 = Low levels of relocations
+- Class 2 = Moderate levels of relocations
+- Class 3 = High levels of relocations
+- Class 4 = Very high level of relocations
+
+However, because they are overlapping polygons, Class 1 makes up the entire surface area including those in the higher categories that are overlapping the data (e.g. Class 4 locations will overlap Class 1, so the "area" of Class 1 makes up the entire surface area). Since the development of the KDE ranges from the extent of the point values, some areas without relocations were calculated in the development of the polygons. So before continuing use the **Clip** geoprocessing tool to clip the KDE based on the MCP.
+
+With the new clipped KDE polygons created you need to add a new field to calculate the area. Open the attribute table and click the _Add Field_ button <img src= "Images/arcgis-add-field-button.jpg" alt="Toolbox" width="40" height="20"> and provide a _Field Name_ of Area to the new variable. Click Float as the _Data Type_ and Numeric as the _Number Format_. You can now close the fields tab and save the edits. On the new variable in the attribute table right-click on Area and click _Calculate Geometry_. On the new pane select the clipped KDE-polygon layer as the _Input Features_, choose Area as the _Target Field_ and Area as the _Property_. For _Area Units_ select square meters and be sure that the _Coordinate system_ matches the CRS of your project and click OK. Re peat this process for the MCP polygon you created earlier.
+
+<p align="center"><div class="zoom"><img src= "Images/arcgis-calculate-geometry.png" alt="Calculate Geometry Field" style="width:100%"></div></p>
+
+**Question No. 2**
+<blockquote>
+What is the area of the Minimum Convex Polygon?<br>
+What is the area of the Kernel Density Estimation?
+</blockquote>
 
 </details>
 
@@ -215,6 +283,11 @@ This will add the reclassified heatmap to you layers. Now you can use ```Polygon
 
 Finally, if you click the **Show Statistical Summary** button <img src= "Images/qgis_statistics.png" alt="Show statistical summary" width="20" height="20"> on the primary horizontal menu, a new _Statistics_ panel will be added to your layout. By selecting the _Added geometry info_ layer (or the name of the file from the previous step) and choosing _area_ you can see a summary of the statistical information. The total area in the _KDE Estimation_ will be found in the **Sum** statistic.
 
+**Question No. 2**
+<blockquote>
+What is the area of the Minimum Convex Polygon?<br>
+What is the area of the Kernel Density Estimation?
+</blockquote>
 </details>
 
 <hr></hr>
@@ -264,39 +337,48 @@ kde.poly25 <- fortify(kde25)
 ```
 
 In these KDE scripts you can print the area (hectares) of any polygon by typing ```kde##$area```, where ## is the _kde_ value from the scripts above. Viewing the area of **kde100** will allow you to view the entire area estimated by the analysis since it includes all levels of relocation.
-</details>
 
-### Question No. 2
+**Question No. 2**
 <blockquote>
 What is the area of the Minimum Convex Polygon?<br>
 What is the area of the Kernel Density Estimation?
 </blockquote>
+</details>
 
 ## Step Three: The Visualization
 
-In order to view our data _in situ_ we need to add a basemap to our view. While we could add various base layers such as topo or terrain maps, in this case we are going to use satellite imagery.
+In order to view our data _in situ_ we need to add a basemap to our view. Think about all of the possible basemaps you can add such as topo or terrain maps, or even satellite imagery.
 
 <details><summary><big>View directions in <b> [ArcGIS Pro]{style="color:#ff4500"} </b></span></big></summary>
-A list of <b>directions</b>... 
 
-<blockquote>insert images and text here</blockquote> 
+It will be important to select an appropriate basemap for your visualization. Look through the options available in the _Basemap_ drop-down menu on the Map Tab and determine which will provide the best visualization of the data you are interested in displaying. 
 
-wrap it up.
+<p align="center"><div class="zoom"><img src= "Images/arcgis-basemaps.png" alt="Basemap Options" style="width:100%"></div></p>
+
+**Question No. 3**
+<blockquote>
+What steps would you take to add and differentiate between the individual cougars in a visualization?
+</blockquote>
 
 </details>
 
 <hr></hr>
 
 <details><summary><big>View directions in <b> [QGIS]{style="color:#006400"} </b></span></big></summary>
-In a previous exercise you added XYZ tiles to your QGIS Browser. Remember to add **ESRI Satellite Imagery** to your broswer you need to Right-Click (CRTL+click on Mac) on _XYZ Tiles_ and click **"New Connection"** and add the following URL:
+In a previous exercise you added XYZ tiles to your QGIS Browser. Remember to add new tiles such as **ESRI Satellite Imagery** to your broswer you need to Right-Click (CRTL+click on Mac) on _XYZ Tiles_ and click **"New Connection"** and add the following URL:
 
 ```
 https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
 ```
 
-You can now click and drag ESRI Satellite into the layer to view the satellite imagery. Remember to arrange your layers so that you can visualize all of the data you are interesting in examining.
+In [Exercise 6, Step 1](https://chrismgentry.github.io/GIS1-Exercise-6/#11_Step_One:_The_Data) you were provided with directions to create connections for satellite imagery, street maps, and topographic maps. Remember to arrange your layers so that you can visualize all of the data you are interested in examining.
 
 <p align="center"><img src= "Images/qgis_output.png" alt="QGIS Output" width="680" height="350"></p>
+
+**Question No. 3**
+<blockquote>
+What steps would you take to add and differentiate between the individual cougars in a visualization?
+</blockquote>
 
 </details>
 
@@ -335,19 +417,29 @@ labs(x="Easting", y="Northing") + guides(color=guide_legend("Identifier")) +
 theme(legend.position="bottom") +
 theme(axis.text.y = element_text(angle=90, hjust=0.5))
 ```
-</details>
 
-### Question No. 3
+**Question No. 3**
 <blockquote>
 What steps would you take to differentiate between the individual cougars in this visualization?
 </blockquote>
 
-## Step Four: The Proposal
+</details>
 
-Now that you have all of the data necessary to determine the feasibility of the **"Grassy Valley Trail"**, you need to add the proposed trail to assess the impact it may have on the cougar population.
+## Step Four: The Trail
+
+Now that you have all of the data necessary to determine the feasibility of the **"Grass Valley Trail"**, you need to add the proposed trail to assess the impact it may have on the cougar population.
 
 <details><summary><big>View directions in <b> [ArcGIS Pro]{style="color:#ff4500"} </b></span></big></summary>
-similar to _Step One_, you will begin by adding the 
+In the first step you should have downloaded the **hiking_trails** dataset from GitHub. If you skipped that step you will need to download the <a href="https://raw.githubusercontent.com/chrismgentry/GIS1-Exercise-9/main/Data/hiking_trail.csv" target="_blank">dataset</a> now. Similar to [Step 1](https://chrismgentry.github.io/GIS1-Exercise-9/#11_Step_One:_The_Data) on the Map Tab go to _Add Data -> XY Point Data_. Be sure the coordinate system is set appropriate for the data. In _Tools_ search for **Points to Line** and select the downloaded CSV file as the _Input Features_, navigate to your project folder and save the .shp file in the _Output Feature Class_. Leave the _Line Field_ blank and set the _Sort Field_ to node and click Run.
+
+<p align="center"><div class="zoom"><img src= "Images/arcgis-point-to-line.png" alt="Points to Line" style="width:100%"></div></p>
+
+Now you should have a line representing the proposed **Grass Valley Trail** that you can style appropriately to help examine all of the data.
+
+**Question No. 4**
+<blockquote>
+Does the trail cross any areas calculated as _high_ or _very high_ use based on the _KDE_ analysis?
+</blockquote>
 
 </details>
 
@@ -358,7 +450,12 @@ In the first step you should have downloaded the **hiking_trails** dataset from 
 
 <p align="center"><img src= "Images/qgis_p2p.png" alt="QGIS Output" width="482" height="387"></p>
 
-Now you should have a line representing the proposed **"Grass Valley Trail"** that you can style appropriately to help examine all of the data.
+Now you should have a line representing the proposed **Grass Valley Trail** that you can style appropriately to help examine all of the data.
+
+**Question No. 4**
+<blockquote>
+Does the trail cross any areas calculated as _high_ or _very high_ use based on the _KDE_ analysis?
+</blockquote>
 
 </details>
 
@@ -391,12 +488,13 @@ labs(x="Easting", y="Northing") + guides(color=guide_legend("Identifier")) +
 theme(legend.position="bottom") +
 theme(axis.text.y = element_text(angle=90, hjust=0.5))
 ```
-</details>
 
-### Question No. 4
+**Question No. 4**
 <blockquote>
 Does the trail cross any areas calculated as _high_ or _very high_ use based on the _KDE_ analysis?
 </blockquote>
+
+</details>
 
 # The Decision
 Recall that _Grass Valley Trail Committee_ has asked you to assess the impact of the proposed hiking trail on the mountain lion habitat and potential risk to visitors. Based on the analyses above, complete a lab write-up that addresses the following questions:
@@ -405,4 +503,4 @@ Recall that _Grass Valley Trail Committee_ has asked you to assess the impact of
 - Describe the difference between the two types of home range analyses. How would this potentially impact the decisions made by the committee? 
 - What portion of the proposed trail has the highest likelihood to traverse areas of the _Sevier Plateau_ that are frequently (high to very high categories) used by the tracked cougars?
 
-Finally, provide a recommendation for the committee on how the proposed trail can be completed with as little interaction as possible with the cougar habitat. Include a visualization (whether digital or analog) that helps provide additional details for your recommendation.
+Finally, provide a recommendation for the committee on how the proposed trail can be completed with as little interaction as possible with the cougar habitat. Include your map that helps provide additional details for your recommendation.
